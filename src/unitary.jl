@@ -23,14 +23,7 @@ end
 
 export SU2
 
-"""
-    tr(A)
 
-Returns the trace of a matrix. This is simply a convenient alias
-for the Julia function `trace`.
-"""
-tr(A) = trace(A)
-export tr
 
 """
 Marsaglia method to generate a random SU(2) matrix

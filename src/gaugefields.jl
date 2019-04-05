@@ -51,7 +51,7 @@ function (U::GaugeFieldSU2)(x::Tuple)
     idx = getindex(U.lattice, x)
     getindex(U.field, idx...)
 end
-(U::GaugeFieldSU2)(x::SVector) = U(Tuple(x))
+(U::GaugeFieldSU2)(x::CartesianIndex) = U(Tuple(x))
 #(U::GaugeFieldSU2)(x...) = U(x...)
 
 # returns spacetime function of U[μ]
@@ -74,13 +74,13 @@ end
 Compute the value of a plaquette before taking the trace.  In other words
 \$\$ U_{\\mu}(x)U_{\\nu}(x+e_{\\mu})U^{\\dagger}_{\\mu}(x+e_{\\nu})U^{\\dagger}_{\\nu}(x) \$\$
 """
-function untracedplaquette(U::AbstractGaugeField, μ::Integer, ν::Integer, x::SVector)
+function untracedplaquette(U::AbstractGaugeField, μ::Integer, ν::Integer, x::CartesianIndex)
     U[μ](x)*U[ν](inc(x,μ))*U[μ](inc(x,ν))'*U[ν](x)'
 end
 export untracedplaquette
 
 """
-    plaquette(U::AbstractGaugeField, μ::Integer, ν::Integer, x::SVector)
+    plaquette(U::AbstractGaugeField, μ::Integer, ν::Integer, x::CartesianIndex)
 
 Compute the value of the plaquette at location `x` over the gauge field.
 
@@ -89,15 +89,15 @@ to be the real part of the trace.
 
 *TODO*: Note that ideally the normalization factor here should depend on the gauge group.
 """
-plaquette(U::AbstractGaugeField, μ::Integer, ν::Integer, x::SVector) = real(tr(untracedplaquette(U,μ,ν,x)))/2.0
+plaquette(U::AbstractGaugeField, μ::Integer, ν::Integer, x::CartesianIndex) = real(tr(untracedplaquette(U,μ,ν,x)))/2.0
 export plaquette
 """
-    staple(U::AbstractGaugeField, μ::Integer, x::SVector)
+    staple(U::AbstractGaugeField, μ::Integer, x::CartesianIndex)
 
 Compute the staple connecting the link U[μ](x)
 
 """
-function staple(U::AbstractGaugeField{d}, μ::Integer, x::SVector) where d
+function staple(U::AbstractGaugeField{d}, μ::Integer, x::CartesianIndex) where d
     st=UnitaryMatrix(zeros(2,2))
     for ν in  1:d
         if (ν != μ)
@@ -107,9 +107,12 @@ function staple(U::AbstractGaugeField{d}, μ::Integer, x::SVector) where d
     end
     return st
 end
+staple(U::AbstractGaugeField{d}, μ::Integer, x::NTuple{d, Int}) where d =
+    staple(U, μ, CartesianIndex(x))
+
 export staple
 """
-    wilsonlagrangian(U::AbstractGaugeField, β::AbstractFloat, x::SVector)
+    wilsonlagrangian(U::AbstractGaugeField, β::AbstractFloat, x::CartesianIndex)
 
 Compute the lowest order Wilson plaquette Lagrangian at location `x` and inverse temperature `β`.
 
@@ -117,7 +120,7 @@ Note that this has a factor of a^4 in front of it relative to the usual G^2 Yang
 
 Note that we neglect the constant term altogether.
 """
-function wilsonlagrangian(U::AbstractGaugeField{d}, β::AbstractFloat, x::SVector) where d
+function wilsonlagrangian(U::AbstractGaugeField{d}, β::AbstractFloat, x::CartesianIndex) where d
     ℒ = 0.0
     for μ ∈ 1:d
         for ν ∈ 1:(μ-1)

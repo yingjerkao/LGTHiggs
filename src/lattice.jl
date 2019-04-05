@@ -1,8 +1,5 @@
 # Code to generate lattices
 
-# TODO
-
-
 Base.getindex(lat::AbstractLattice, idx::Tuple) = idx
 Base.getindex(lat::AbstractLattice, idx...) = getindex(lat, idx)
 
@@ -34,10 +31,10 @@ sizenocheck(lat::AbstractLattice{d}, idx::Integer) where d = (idx == d) ? lat.T 
     eachspacetimeindex(lat::AbstractLattice)
 
 Return an iterator over every spacetime index in the lattice `lat`.  Spacetime indices will be
-in the form of `SVector`s.
+in the form of `CartesianIndex`s.
 """
 function eachspacetimeindex(lat::AbstractLattice{d}) where d
-    (SVector{d}(CartesianIndices(x)) for x ∈ 1:nsites(lat))
+    CartesianIndices(size(lat))
 end
 export eachspacetimeindex
 
@@ -94,14 +91,18 @@ function Base.getindex(lat::LatticeToroidal, i::Integer, j::Integer, k::Integer,
 end
 Base.getindex(lat::LatticeToroidal, idx...) = getindex(lat, idx)
 Base.getindex(lat::LatticeToroidal, idx::Tuple) = getindex(lat, idx...)
-Base.getindex(lat::LatticeToroidal, idx::SVector) = getindex(lat, Tuple(idx))
+Base.getindex(lat::LatticeToroidal, idx::CartesianIndex) = getindex(lat, Tuple(idx))
 
 # TODO compiler will not know size of these!
-spacetimebasisvec(μ::Integer, N::Integer) = SVector{N}([i ≠ μ ? 0 : 1 for i ∈ 1:N])
+spacetimebasisvec(μ::Integer, N::Integer) = CartesianIndex{N}(Tuple(i ≠ μ ? 0 : 1 for i ∈ 1:N))
 spacetimebasisvec(μ::Integer, lat::AbstractLattice{d}) where d = spacetimebasisvec(μ, d)
 export spacetimebasisvec
 
 # TODO this is probably expensive and shitty
-inc(x::SVector{N}, μ::Integer) where N = SVector{N}([i ≠ μ ? x[i] : x[i]+1 for i ∈ 1:N])
-Base.dec(x::SVector{N}, μ::Integer) where N = SVector{N}([i ≠ μ ? x[i] : x[i]-1 for i ∈ 1:N])
+inc(x::CartesianIndex{N}, μ::Integer) where N =
+    CartesianIndex{N}(Tuple(i == μ ? x[i]+1 : x[i] for i in 1:N))
+
+
+Base.dec(x::CartesianIndex{N}, μ::Integer) where N =
+    CartesianIndex{N}(Tuple(i ≠ μ ? x[i] : x[i]-1 for i ∈ 1:N))
 export inc
