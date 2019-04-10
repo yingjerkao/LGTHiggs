@@ -1,8 +1,6 @@
 __precompile__(true)
 module LGTHiggs
 
-using StaticArrays
-
 # abstract types, d is number of spacetime dimensions
 abstract type AbstractLattice{d} end
 # the type parameters give the spacetime dimensionality
