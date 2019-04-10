@@ -38,6 +38,17 @@ function eachspacetimeindex(lat::AbstractLattice{d}) where d
 end
 export eachspacetimeindex
 
+"""
+    checkerboardspacetimeindex(lat::AbstractLattice)
+
+Return a tuple of iterators over spacetime index with odd and even parity in
+the lattice `lat`.  Spacetime indices will be in the form of `CartesianIndex`s.
+"""
+function checkerboardspacetimeindex(lat::AbstractLattice{d}) where d
+    CartesianIndices(size(lat))
+end
+export checkerboardspacetimeindex
+
 
 function size(lat::AbstractLattice{d}, idx::Integer) where d
     if idx == d
@@ -98,11 +109,10 @@ spacetimebasisvec(μ::Integer, N::Integer) = CartesianIndex{N}(Tuple(i ≠ μ ? 
 spacetimebasisvec(μ::Integer, lat::AbstractLattice{d}) where d = spacetimebasisvec(μ, d)
 export spacetimebasisvec
 
-# TODO this is probably expensive and shitty
-inc(x::CartesianIndex{N}, μ::Integer) where N =
-    CartesianIndex{N}(Tuple(i == μ ? x[i]+1 : x[i] for i in 1:N))
+function shift(x::CartesianIndex{N}, μ::Integer) where N
+    _μ=abs(μ)
+    @assert _μ<=N && _μ>0 "Index μ=$μ out of range"
+    x+=sign(μ)*CartesianIndex{N}(Tuple(i == _μ ? 1 : 0 for i in 1:N))
+end
 
-
-Base.dec(x::CartesianIndex{N}, μ::Integer) where N =
-    CartesianIndex{N}(Tuple(i ≠ μ ? x[i] : x[i]-1 for i ∈ 1:N))
 export inc

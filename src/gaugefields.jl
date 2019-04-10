@@ -75,7 +75,7 @@ Compute the value of a plaquette before taking the trace.  In other words
 \$\$ U_{\\mu}(x)U_{\\nu}(x+e_{\\mu})U^{\\dagger}_{\\mu}(x+e_{\\nu})U^{\\dagger}_{\\nu}(x) \$\$
 """
 function untracedplaquette(U::AbstractGaugeField, μ::Integer, ν::Integer, x::CartesianIndex)
-    U[μ](x)*U[ν](inc(x,μ))*U[μ](inc(x,ν))'*U[ν](x)'
+    U[μ](x)*U[ν](shift(x,μ))*U[μ](shift(x,ν))'*U[ν](x)'
 end
 export untracedplaquette
 
@@ -101,8 +101,8 @@ function staple(U::AbstractGaugeField{d}, μ::Integer, x::CartesianIndex) where 
     st=UnitaryMatrix(zeros(2,2))
     for ν in  1:d
         if (ν != μ)
-            st+=(U[ν](inc(x,μ))*U[μ](inc(x,ν))'*U[ν](x)'
-            +U[ν](inc(inc(x,μ),-ν))'*U[μ](inc(x,-ν))'*U[ν](inc(x,μ)))
+            st+=(U[ν](shift(x,μ))*U[μ](shift(x,ν))'*U[ν](x)'
+            +U[ν](shift(shift(x,μ),-ν))'*U[μ](shift(x,-ν))'*U[ν](shift(x,μ)))
         end
     end
     return st
