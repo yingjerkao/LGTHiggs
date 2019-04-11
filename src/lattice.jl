@@ -1,7 +1,9 @@
 # Code to generate lattices
 
-Base.getindex(lat::AbstractLattice, idx::Tuple) = idx
-Base.getindex(lat::AbstractLattice, idx...) = getindex(lat, idx)
+#Base.getindex(lat::AbstractLattice, idx::Tuple) = idx
+#Base.getindex(lat::AbstractLattice, idx...) = getindex(lat, idx)
+
+
 
 """
     fieldsites(::Type{T}, lat::AbstractLattice)
@@ -19,9 +21,7 @@ export nsites
 
 
 # this is an implementation that doesn't involve splatting
-function Base.LinearIndices(M::Tuple, m::Tuple)
-    1 + sum((m[n]-1)*prod(M[1:(n-1)]) for n ∈ 1:length(M))
-end
+
 
 size(lat::AbstractLattice{d}) where d = tuple((lat.L for i ∈ 1:(d-1))..., lat.T)
 
@@ -45,7 +45,14 @@ Return a tuple of iterators over spacetime index with odd and even parity in
 the lattice `lat`.  Spacetime indices will be in the form of `CartesianIndex`s.
 """
 function checkerboardspacetimeindex(lat::AbstractLattice{d}) where d
-    CartesianIndices(size(lat))
+
+    T=CartesianIndices(size(lat))
+    Parity_Odd=[]
+    Parity_Even=[]
+    for i in T
+        isodd(sum(i.I)) ?  push!(Parity_Odd, i) : push!(Parity_Even, i)
+    end
+    return Parity_Odd, Parity_Even
 end
 export checkerboardspacetimeindex
 
@@ -115,4 +122,4 @@ function shift(x::CartesianIndex{N}, μ::Integer) where N
     x+=sign(μ)*CartesianIndex{N}(Tuple(i == _μ ? 1 : 0 for i in 1:N))
 end
 
-export inc
+export shift
