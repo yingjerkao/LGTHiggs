@@ -43,16 +43,13 @@ export eachspacetimeindex
 
 Return a tuple of iterators over spacetime index with odd and even parity in
 the lattice `lat`.  Spacetime indices will be in the form of `CartesianIndex`s.
+TODO: Slow due to allocation and iteration
 """
-function checkerboardspacetimeindex(lat::AbstractLattice{d}) where d
-
+function checkerboardspacetimeindex(lat::AbstractLattice)
     T=CartesianIndices(size(lat))
-    Parity_Odd=[]
-    Parity_Even=[]
-    for i in T
-        isodd(sum(i.I)) ?  push!(Parity_Odd, i) : push!(Parity_Even, i)
-    end
-    return Parity_Odd, Parity_Even
+    A=[isodd(sum(i.I)) for i in T]
+    #reshape!(A,size(latt))
+    return T[A], T[.!A]
 end
 export checkerboardspacetimeindex
 
@@ -96,18 +93,23 @@ end
 # these duplications are to avoid splatting
 # WARNING right now these don't check lattice dimensions
 # for rank-2
-function Base.getindex(lat::LatticeToroidal, i::Integer, j::Integer)
-    _loopedidx(i, lat.L), _loopedidx(j, lat.T)
+# function Base.getindex(lat::LatticeToroidal, i::Integer, j::Integer)
+#     _loopedidx(i, lat.L), _loopedidx(j, lat.T)
+# end
+# # for rank-3
+# function Base.getindex(lat::LatticeToroidal, i::Integer, j::Integer, k::Integer)
+#     _loopedidx(i, lat.L), _loopedidx(j, lat.L), _loopedidx(k, lat.T)
+# end
+# # for rank-4
+# function Base.getindex(lat::LatticeToroidal, i::Integer, j::Integer, k::Integer, l::Integer)
+#     _loopedidx(i, lat.L), _loopedidx(j, lat.L), _loopedidx(k, lat.L), _loopedidx(l, lat.L)
+# end
+function Base.getindex(lat::LatticeToroidal{d}, idx...) where d
+    @assert length(idx)==d "Dimesion mismatch"
+
+    return (_loopedidx(idx[i],lat.L) for i in 1:(d-1))..., _loopedidx(idx[d],lat.T)
 end
-# for rank-3
-function Base.getindex(lat::LatticeToroidal, i::Integer, j::Integer, k::Integer)
-    _loopedidx(i, lat.L), _loopedidx(j, lat.L), _loopedidx(k, lat.T)
-end
-# for rank-4
-function Base.getindex(lat::LatticeToroidal, i::Integer, j::Integer, k::Integer, l::Integer)
-    _loopedidx(i, lat.L), _loopedidx(j, lat.L), _loopedidx(k, lat.L), _loopedidx(l, lat.L)
-end
-Base.getindex(lat::LatticeToroidal, idx...) = getindex(lat, idx)
+#Base.getindex(lat::LatticeToroidal, idx...) = getindex(lat, idx)
 Base.getindex(lat::LatticeToroidal, idx::Tuple) = getindex(lat, idx...)
 Base.getindex(lat::LatticeToroidal, idx::CartesianIndex) = getindex(lat, Tuple(idx))
 
