@@ -25,15 +25,20 @@ export heatbath_gauge!
 """
 
 function a_generator(β::Float64, α::Float64)
-    y=[1.0 1.0]
+    a0=2.0
 
-    while norm(y)>1
-        y=rand(2)* .- 1
-    end
-    normy_sqr=norm(y)^2
-    x1=rand()
-    a0=1.0+(log(x1)+y[1]^2/normy_sqr*log(normy_sqr))/α # Eq. (A.33)
+    while abs(a0)>1
+        y=[1.0 1.0]
+
+        while norm(y)>1
+            y=rand(2)*2 .- 1
+        end
+        normy_sqr=norm(y)^2
+#    println(normy_sqr)
+        x1=rand()
+        a0=1.0+(log(x1)+y[1]^2/normy_sqr*log(normy_sqr))/α # Eq. (A.33)
 #    println(a0)
+    end
     r=sqrt(1.0-a0^2)
     x=[1.0 1.0]
     while norm(x)>1
