@@ -1,7 +1,7 @@
 # Code to generate lattices
 
-#Base.getindex(lat::AbstractLattice, idx::Tuple) = idx
-#Base.getindex(lat::AbstractLattice, idx...) = getindex(lat, idx)
+Base.getindex(lat::AbstractLattice, idx::Tuple) = idx
+Base.getindex(lat::AbstractLattice, idx...) = getindex(lat, idx)
 
 
 
@@ -43,7 +43,6 @@ export eachspacetimeindex
 
 Return a tuple of iterators over spacetime index with odd and even parity in
 the lattice `lat`.  Spacetime indices will be in the form of `CartesianIndex`s.
-TODO: Slow due to allocation and iteration
 """
 function checkerboardspacetimeindex(lat::AbstractLattice)
     T=CartesianIndices(size(lat))
@@ -105,7 +104,6 @@ end
 #     _loopedidx(i, lat.L), _loopedidx(j, lat.L), _loopedidx(k, lat.L), _loopedidx(l, lat.L)
 # end
 function Base.getindex(lat::LatticeToroidal{d}, idx...) where d
-    @assert length(idx)==d "Dimesion mismatch"
 
     return (_loopedidx(idx[i],lat.L) for i in 1:(d-1))..., _loopedidx(idx[d],lat.T)
 end
@@ -117,11 +115,26 @@ Base.getindex(lat::LatticeToroidal, idx::CartesianIndex) = getindex(lat, Tuple(i
 spacetimebasisvec(μ::Integer, N::Integer) = CartesianIndex{N}(Tuple(i ≠ μ ? 0 : 1 for i ∈ 1:N))
 spacetimebasisvec(μ::Integer, lat::AbstractLattice{d}) where d = spacetimebasisvec(μ, d)
 export spacetimebasisvec
+"""
+    shift(x::CartesianIndex, μ::Integer, d::Integer) -> y
 
-function shift(x::CartesianIndex{N}, μ::Integer) where N
+    Shift CartesianIndex x by d units in direction μ. The direction is defined
+    by the sign of μ.
+
+"""
+function shift(x::CartesianIndex{N}, μ::Integer, d::Integer) where N
     _μ=abs(μ)
     @assert _μ<=N && _μ>0 "Index μ=$μ out of range"
-    x+=sign(μ)*CartesianIndex{N}(Tuple(i == _μ ? 1 : 0 for i in 1:N))
+    if d==0
+        return x
+    else
+        return x+=sign(μ)*CartesianIndex{N}(Tuple(i == _μ ? d : 0 for i in 1:N))
+    end
 end
+
+shift(x::CartesianIndex, μ::Integer) = shift(x::CartesianIndex, μ::Integer, 1)
+shift(x::Tuple, μ::Integer) = shift(CartesianIndex(x),μ)
+shift(x::Tuple, μ::Integer, d::Integer) =  shift(CartesianIndex(x),μ, d)
+
 
 export shift
