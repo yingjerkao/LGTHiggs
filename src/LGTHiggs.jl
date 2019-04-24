@@ -15,5 +15,5 @@ include("unitary.jl")
 include("lattice.jl")
 include("gaugefields.jl")
 include("metropolis.jl")
-
+include("measurement.jl")
 end # module
