@@ -51,3 +51,13 @@ function randSU2()
     U=SU2([u0,u1,u2,u3])
 end
 export randSU2
+
+function project_SU2!(A::UnitaryMatrix)
+    dimension=size(A,1)
+    @assert dimension==2 "Only implemented for SU(2)"
+    A[1,:]/=norm(A[1,:])
+    A[2,1]=-(conj(A[1,2]))
+    A[2,2]=conj(A[1,1])
+    return A
+end
+export project_SU2!
