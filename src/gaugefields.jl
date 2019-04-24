@@ -100,7 +100,7 @@ Compute the staple connecting the link U[μ](x)
 function staple(U::AbstractGaugeField{d}, μ::Integer, x::CartesianIndex) where d
     st=UnitaryMatrix(zeros(2,2))
     for ν in  1:d
-        if (ν != μ)
+        if ν != μ
             st+=(U[ν](shift(x,μ))*U[μ](shift(x,ν))'*U[ν](x)'
             +U[ν](shift(shift(x,μ),-ν))'*U[μ](shift(x,-ν))'*U[ν](shift(x,μ)))
         end
@@ -147,3 +147,13 @@ function wilsonaction(U::AbstractGaugeField{d}, β::AbstractFloat) where d
     S/U.lattice.a^(4 - d) # this factor to fix the powers of a
 end
 export wilsonaction
+
+function renormalize_GaugeFieldSU2!(U::GaugeFieldSU2{d}) where d
+    for x in eachspacetimeindex(U)
+        for μ in 1:d
+            project_SU2!(U(x)[μ])
+        end
+    end
+end
+
+export renormalize_GaugeFieldSU2!
