@@ -14,6 +14,7 @@ import Base: size, getindex, dec
 include("unitary.jl")
 include("lattice.jl")
 include("gaugefields.jl")
+include("higgsfields.jl")
 include("metropolis.jl")
 include("measurement.jl")
 end # module
