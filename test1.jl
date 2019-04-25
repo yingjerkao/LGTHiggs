@@ -2,8 +2,9 @@
 include("src/LGTHiggs.jl")
 using .LGTHiggs
 
-latt=LatticeToroidal(3,1.0, 6, 4)
+latt=LatticeToroidal(3,1.0, 4, 4)
 A=rand(GaugeFieldSU2,latt)
+ϕ=AdjointHiggsField(latt)
 
 heatbath_gauge!(A,10.0,5)
 overrelaxation_gauge!(A,10.0)
@@ -21,3 +22,5 @@ function test_wislonloop()
     println(wilsonloop(A,CartesianIndex(1,1,1),1,1))
 end
 test_wislonloop()
+
+higgsaction(A,ϕ,2.0)
