@@ -30,18 +30,18 @@ struct GaugeFieldSU2{d} <: AbstractGaugeField{d}
 end
 export GaugeFieldSU2
 
-function GaugeFieldSU2(spacetime::AbstractArray{WilsonLineVar,d}, lat::AbstractLattice{d}) where d
-    GaugeFieldSU2{d}(spacetime, lat)
+function GaugeFieldSU2(st::AbstractArray{WilsonLineVar,d}, lat::AbstractLattice{d}) where d
+    GaugeFieldSU2{d}(st, lat)
 end
 
 # for now this just creates a "vacuum" with A=0 everywhere
 function GaugeFieldSU2(lat::AbstractLattice)
     # note inefficiency due to splatting
-    spacetime = fieldsites(WilsonLineVar, lat)
-    for idx ∈ eachindex(spacetime)
-        spacetime[idx] = wilsonlineunity(2, lat)
+    st = fieldsites(WilsonLineVar, lat)
+    for idx ∈ eachindex(st)
+        st[idx] = wilsonlineunity(2, lat)
     end
-    GaugeFieldSU2(spacetime, lat)
+    GaugeFieldSU2(st, lat)
 end
 
 
@@ -52,7 +52,7 @@ function (U::GaugeFieldSU2)(x::Tuple)
     getindex(U.field, idx...)
 end
 (U::GaugeFieldSU2)(x::CartesianIndex) = U(Tuple(x))
-#(U::GaugeFieldSU2)(x...) = U(x...)
+(U::GaugeFieldSU2)(x...) = U(Tuple(x))
 
 # returns spacetime function of U[μ]
 getindex(U::GaugeFieldSU2, μ::Integer) = x -> U(x)[μ]
@@ -60,11 +60,11 @@ getindex(U::GaugeFieldSU2, μ::Integer) = x -> U(x)[μ]
 eachspacetimeindex(U::AbstractGaugeField{d}) where d = eachspacetimeindex(U.lattice)
 
 function rand(::Type{GaugeFieldSU2}, lat::AbstractLattice)
-    spacetime = fieldsites(WilsonLineVar, lat)
-    for idx ∈ eachindex(spacetime)
-        spacetime[idx] = randwilsonlineSU2(lat)
+    st= fieldsites(WilsonLineVar, lat)
+    for idx ∈ eachindex(st)
+        st[idx] = randwilsonlineSU2(lat)
     end
-    GaugeFieldSU2(spacetime, lat)
+    GaugeFieldSU2(st, lat)
 end
 
 
