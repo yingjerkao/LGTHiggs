@@ -8,7 +8,7 @@ Base.getindex(lat::AbstractLattice, idx...) = getindex(lat, idx)
 """
     fieldsites(::Type{T}, lat::AbstractLattice)
 
-Creates an uninitialized array with elements of type T for every point on the lattice.
+Creates an uninitialized array with elements of type T with dimsion d for every point on the lattice.
 """
 function fieldsites(::Type{T}, lat::AbstractLattice{d}) where {T, d}
     Array{T, d}(undef,(lat.L for i ∈ 1:(d-1))..., lat.T)
