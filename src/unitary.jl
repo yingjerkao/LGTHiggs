@@ -15,7 +15,7 @@ const one2by2 = UnitaryMatrix(I, 2, 2)
     SU2(a::AbstractVector)
     Create a SU2 matrix from four points on S4
 """
-
+const σ=[σ₁, σ₂, σ₃]
 function SU2(a::AbstractVector)
     @assert abs(norm(a)-1)<1e-6
     one2by2*a[1]+im*(a[2]*σ₁+a[3]*σ₂+a[4]*σ₃)
